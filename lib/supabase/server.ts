@@ -3,8 +3,22 @@ import { cookies } from "next/headers"
 
 export async function createClient() {
   const cookieStore = await cookies()
+  
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-  return createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+  if (!supabaseUrl || !supabaseAnonKey || supabaseUrl.includes('placeholder')) {
+    console.warn("Supabase credentials missing or placeholder. Site will run in offline/demo mode.")
+    // Return a mock-like client that doesn't crash on select() etc.
+    return createServerClient('https://placeholder.supabase.co', 'placeholder-key', {
+      cookies: {
+        getAll: () => [],
+        setAll: () => {},
+      },
+    })
+  }
+
+  return createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       getAll() {
         return cookieStore.getAll()
