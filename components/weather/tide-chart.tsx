@@ -11,7 +11,7 @@ import type { Location } from "./marine-weather-dashboard"
 interface TideData {
   hourly?: {
     time: string[]
-    sea_surface_height_above_geoid?: number[]
+    sea_level_height_msl?: number[]
   }
 }
 
@@ -30,7 +30,7 @@ export function TideChart({ location }: TideChartProps) {
       setError(null)
       try {
         const res = await fetch(
-          `https://marine-api.open-meteo.com/v1/marine?latitude=${location.lat}&longitude=${location.lon}&hourly=sea_surface_height_above_geoid&timezone=Asia%2FDhaka&forecast_days=7`,
+          `https://marine-api.open-meteo.com/v1/marine?latitude=${location.lat}&longitude=${location.lon}&hourly=sea_level_height_msl&timezone=Asia%2FDhaka&forecast_days=7`,
         )
 
         if (!res.ok) {
@@ -71,7 +71,7 @@ export function TideChart({ location }: TideChartProps) {
     )
   }
 
-  if (error || !data?.hourly?.sea_surface_height_above_geoid) {
+  if (error || !data?.hourly?.sea_level_height_msl) {
     return (
       <Card>
         <CardContent className="pt-6">
@@ -91,7 +91,7 @@ export function TideChart({ location }: TideChartProps) {
   const chartData = data.hourly.time.map((time, index) => ({
     time: new Date(time).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric" }),
     fullTime: time,
-    height: data.hourly?.sea_surface_height_above_geoid?.[index] ?? 0,
+    height: data.hourly?.sea_level_height_msl?.[index] ?? 0,
   }))
 
   // Find high and low tides (local maxima and minima)

@@ -1,10 +1,13 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { useState } from "react"
+import { usePathname } from "next/navigation"
 import { Menu, Search, Map, FileText, BookOpen, GraduationCap, Phone, Anchor } from "lucide-react"
+import { CartDrawer } from "@/components/layout/cart-drawer"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -64,6 +67,20 @@ const aboutLinks = [
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const pathname = usePathname()
+
+  const isPathActive = (path: string) => {
+    if (path === "/") return pathname === "/"
+    return pathname.startsWith(path)
+  }
+
+  const navItemClasses = (active: boolean) =>
+    cn(
+      "group inline-flex h-10 w-max items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 focus:outline-none disabled:pointer-events-none disabled:opacity-50",
+      active
+        ? "bg-[#008080] text-white shadow-md hover:bg-[#006666] hover:text-white data-[state=open]:bg-[#006666] data-[state=open]:text-white"
+        : "bg-transparent text-foreground hover:bg-accent hover:text-accent-foreground data-[state=open]:bg-accent/50",
+    )
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -104,14 +121,16 @@ export function Header() {
             <NavigationMenuList>
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <Link href="/" className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50">
+                  <Link href="/" className={navItemClasses(isPathActive("/"))}>
                     Home
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
 
               <NavigationMenuItem>
-                <NavigationMenuTrigger>Products & Services</NavigationMenuTrigger>
+                <NavigationMenuTrigger className={navItemClasses(isPathActive("/products"))}>
+                  Products & Services
+                </NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <ul className="grid w-[500px] gap-3 p-4 md:grid-cols-2">
                     {productsServices.map((item) => (
@@ -137,7 +156,9 @@ export function Header() {
               </NavigationMenuItem>
 
               <NavigationMenuItem>
-                <NavigationMenuTrigger>About Us</NavigationMenuTrigger>
+                <NavigationMenuTrigger className={navItemClasses(isPathActive("/about"))}>
+                  About Us
+                </NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <ul className="grid w-[400px] gap-3 p-4">
                     {aboutLinks.map((item) => (
@@ -161,8 +182,8 @@ export function Header() {
 
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <Link href="/skill-development" className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50">
-                    <GraduationCap className="mr-2 h-4 w-4" />
+                  <Link href="/skill-development" className={navItemClasses(isPathActive("/skill-development"))}>
+                    <GraduationCap className={cn("mr-2 h-4 w-4", !isPathActive("/skill-development") && "text-muted-foreground")} />
                     Skill Development
                   </Link>
                 </NavigationMenuLink>
@@ -170,8 +191,8 @@ export function Header() {
 
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <Link href="/contact" className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50">
-                    <Phone className="mr-2 h-4 w-4" />
+                  <Link href="/contact" className={navItemClasses(isPathActive("/contact"))}>
+                    <Phone className={cn("mr-2 h-4 w-4", !isPathActive("/contact") && "text-muted-foreground")} />
                     Contact
                   </Link>
                 </NavigationMenuLink>
@@ -185,6 +206,9 @@ export function Header() {
               <Search className="h-5 w-5" />
               <span className="sr-only">Search</span>
             </Button>
+
+            {/* Shopping Cart */}
+            <CartDrawer />
 
             {/* Mobile Menu */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>

@@ -1,5 +1,3 @@
-git remote set-url origin git@github.com:rabbitbf/navy_bnhoc.git
-git push -u origin main
 "use client"
 
 import { useRouter } from "next/navigation"

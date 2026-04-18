@@ -1,11 +1,18 @@
-import { GraduationCap, Clock, Download, ChevronRight } from "lucide-react"
+"use client"
+
+import { useState } from "react"
+import Link from "next/link"
+import Image from "next/image"
+import { GraduationCap, Clock, Download, ChevronRight, ShoppingCart, Check } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { useCart } from "@/lib/cart-context"
 import type { Course } from "@/lib/types"
 
 interface CoursesListingProps {
   groupedCourses: Record<string, Course[]>
+  showAddToCart?: boolean
 }
 
 const categoryDescriptions: Record<string, string> = {
@@ -16,8 +23,36 @@ const categoryDescriptions: Record<string, string> = {
   Customized: "Tailored courses for specific organizational needs",
 }
 
-export function CoursesListing({ groupedCourses }: CoursesListingProps) {
+const categoryPrices: Record<string, number> = {
+  "Category A": 50000,
+  "Category B": 30000,
+  "Survey Recorder": 15000,
+  Surveyor: 25000,
+  Customized: 20000,
+}
+
+export function CoursesListing({ groupedCourses, showAddToCart = true }: CoursesListingProps) {
   const categories = Object.keys(groupedCourses)
+  const [addedIds, setAddedIds] = useState<Set<string>>(new Set())
+  const { addItem } = useCart()
+
+  const handleAddToCart = (course: Course) => {
+    addItem({
+      id: course.id,
+      name: course.title,
+      type: "course",
+      category: course.category,
+      price: categoryPrices[course.category] || 20000,
+    })
+    setAddedIds((prev) => new Set(prev).add(course.id))
+    setTimeout(() => {
+      setAddedIds((prev) => {
+        const next = new Set(prev)
+        next.delete(course.id)
+        return next
+      })
+    }, 2000)
+  }
 
   if (categories.length === 0) {
     return (
@@ -53,6 +88,7 @@ export function CoursesListing({ groupedCourses }: CoursesListingProps) {
       {/* Course Categories */}
       {categories.map((category) => {
         const courses = groupedCourses[category]
+        const price = categoryPrices[category] || 20000
         return (
           <div key={category}>
             <div className="mb-4">
@@ -62,47 +98,81 @@ export function CoursesListing({ groupedCourses }: CoursesListingProps) {
               )}
             </div>
             <div className="grid gap-4 md:grid-cols-2">
-              {courses.map((course) => (
-                <Card key={course.id} className="overflow-hidden">
-                  <CardContent className="p-0">
-                    <div className="flex">
-                      {/* Image placeholder */}
-                      <div className="flex h-full w-24 shrink-0 items-center justify-center bg-primary/10">
-                        <GraduationCap className="h-10 w-10 text-primary" />
-                      </div>
-                      <div className="flex-1 p-4">
-                        <Badge variant="outline" className="mb-2">
-                          {category}
-                        </Badge>
-                        <h4 className="font-medium">{course.title}</h4>
-                        {course.duration && (
-                          <div className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-                            <Clock className="h-4 w-4" />
-                            {course.duration}
+              {courses.map((course) => {
+                const isAdded = addedIds.has(course.id)
+                return (
+                  <Card key={course.id} className="overflow-hidden transition-all hover:shadow-lg">
+                    <CardContent className="p-0">
+                      <div className="flex flex-col sm:flex-row">
+                        {/* Image placeholder */}
+                         <div className="relative flex aspect-video w-full h-[180px] sm:w-48 sm:h-auto shrink-0 overflow-hidden bg-navy-50">
+                          <Image
+                            src="/course-banner.png"
+                            alt={course.title}
+                            fill
+                            className="object-cover transition-transform duration-500 group-hover:scale-110"
+                            sizes="(max-width: 768px) 100vw, 192px"
+                            priority={true}
+                          />
+                        </div>
+                        <div className="flex-1 p-6 flex flex-col justify-between">
+                          <div>
+                            <h4 className="text-xl font-bold text-navy-900 leading-tight mb-2 group-hover:text-primary transition-colors">
+                              {course.title}
+                            </h4>
+                            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                              <div className="flex items-center gap-1.5 font-medium text-navy-600 bg-navy-50 px-2 py-0.5 rounded-md">
+                                <GraduationCap className="h-4 w-4" />
+                                {category}
+                              </div>
+                              {course.duration && (
+                                <div className="flex items-center gap-1.5">
+                                  <Clock className="h-4 w-4" />
+                                  {course.duration}
+                                </div>
+                              )}
+                            </div>
+                            {course.description && (
+                              <p className="mt-4 text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                                {course.description}
+                              </p>
+                            )}
                           </div>
-                        )}
-                        {course.description && (
-                          <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{course.description}</p>
-                        )}
-                        <div className="mt-3 flex gap-2">
-                          <Button variant="outline" size="sm">
-                            <ChevronRight className="mr-1 h-4 w-4" />
-                            Details
-                          </Button>
-                          {course.brochure_url && (
-                            <Button size="sm" asChild>
-                              <a href={course.brochure_url} download>
-                                <Download className="mr-1 h-4 w-4" />
-                                Brochure
-                              </a>
-                            </Button>
-                          )}
+                          
+                          <div className="mt-6 flex items-center justify-end">
+                            <div className="flex gap-2">
+                              <Button variant="outline" size="sm" asChild className="font-semibold border-navy-200 hover:bg-navy-50">
+                                <Link href={`/skill-development/${course.id}`}>
+                                  View Details
+                                </Link>
+                              </Button>
+                              {showAddToCart && (
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleAddToCart(course)}
+                                  className={isAdded ? "bg-emerald-600 hover:bg-emerald-700" : "bg-navy-900 hover:bg-navy-800 text-white"}
+                                >
+                                  {isAdded ? (
+                                    <>
+                                      <Check className="mr-1 h-4 w-4" />
+                                      Added!
+                                    </>
+                                  ) : (
+                                    <>
+                                      <ShoppingCart className="mr-1 h-4 w-4" />
+                                      Add to Cart
+                                    </>
+                                  )}
+                                </Button>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                )
+              })}
             </div>
           </div>
         )

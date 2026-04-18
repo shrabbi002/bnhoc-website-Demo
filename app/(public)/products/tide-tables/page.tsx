@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   description: "Annual tide predictions for all major ports in Bangladesh",
 }
 
+export const revalidate = 3600 // Revalidate every hour
+
 export default async function TideTablesPage() {
   let tideTables = null
 

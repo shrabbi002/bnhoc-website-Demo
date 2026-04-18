@@ -30,8 +30,8 @@ export function HeroSection() {
       <div className="container relative mx-auto px-4 py-20">
         <div className="grid items-center gap-12 lg:grid-cols-2">
           {/* Content */}
-          <div className="text-center lg:text-left">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-navy-700/50 px-4 py-2 text-sm text-gold-400">
+          <div className="text-center lg:text-left animate-in fade-in slide-in-from-left duration-1000 ease-out">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-navy-700/50 px-4 py-2 text-sm text-gold-400 border border-gold-400/20">
               <Anchor className="h-4 w-4" />
               <span>Official Government Portal</span>
             </div>
@@ -43,7 +43,7 @@ export function HeroSection() {
               Charting the waters of Bangladesh for safe maritime navigation. Access official nautical charts, tide
               tables, and navigational publications.
             </p>
-            <div className="flex flex-col gap-4 sm:flex-row sm:justify-center lg:justify-start">
+            <div className="flex flex-col gap-4 sm:flex-row sm:justify-center lg:justify-start animate-in fade-in slide-in-from-bottom duration-1000 delay-300">
               <Link href="/products/charts">
                 <Button size="lg" className="w-full bg-gold-500 text-navy-900 hover:bg-gold-400 sm:w-auto">
                   <Map className="mr-2 h-5 w-5" />
