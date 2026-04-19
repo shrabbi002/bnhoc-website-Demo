@@ -88,7 +88,7 @@ export function Header() {
       <div className="bg-navy-900 text-primary-foreground">
         <div className="container mx-auto flex items-center justify-between px-4 py-2 text-sm">
           <div className="flex items-center gap-4">
-            <span className="hidden sm:inline">Welcome to Bangladesh Navy HOC</span>
+            <span className="hidden sm:inline">Welcome to BNHOC</span>
           </div>
           <div className="flex items-center gap-4">
             <Link href="/auth/login" className="hover:text-gold-400 transition-colors">
